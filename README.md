@@ -1,59 +1,49 @@
-# High level overview
+# Vivy Url Shorten Application
 
-We have created a simple application that comprises a backend app built in Java with Spring Webflux.
+Vivy Url Shorten Application is a spring framework project that is for creating and redirecting the shorten url.
 
-The purpose of the app is to create shortened versions of URLs. For example, given the url `https://github.com/VivyTeam/url-shortener-be-test`, the backend application would create a short url such as `http://localhost:9000/41e515a91a72`.
+## Features
+- Create shorten URL
+- Get original url by shorten URL
+- Redirect with full version of the shortened
 
-The application has two endpoints, detailed below:
+## Requirements
+* Java11
+* Spring/Spring-boot
+* Postgres
+* Hibernate
+* Gradle
+* Docker/Docker-Compose
 
-```
-GET /{urlToBeShortened}/short # Shorten the given URL
-GET /{shortenedUrl}/full # Returns the full URL given the shortened version
-```
+## Getting started
 
-# Your task
+### Running the application locally
 
-- Fork the repository
-- Implement the logic to shorten a URL
-- Implement the logic to get the full URL given a shortened one
-- Bonus: implement a new endpoint that redirects the request to the full version of the shortened URL, like
-  ```
-  GET /{shortenedUrl} # Redirects the request to the full version of the shortened URL
-  ```
-- Share your repository with us
-
-# Ports
-Backend default port: `9000`
-
-# How to run project
-
-## 1. Build Vivy Url Shorten Application
+#### 1. Build Vivy Url Shorten Application
 
 To run Url Shorten Application, we need to build docker images.
 
-### 1.1. Run gradle build
+##### 1.1. Run gradle build
 ```
     gradle clean build
 ```
 
-### 1.2. Build docker image
+##### 1.2. Build docker image
 ```
     docker build -t vivy/url-service .
 ```
 
-## 2. Run Quote Application
+#### 2. Run Quote Application
 
-### 2.1. Execute docker-compose
+##### 2.1. Execute docker-compose
 ```
     cd local
     docker-compose up
 ```
-# Test
+### Testing
 
-## How to test with rest api
-
-### 1. Test with curl
-#### Create shorten url
+#### 1. Test with curl
+##### Create shorten url
 ```
     curl --location --request POST 'http://localhost:9000/url/short' \
     --header 'Content-Type: application/json' \
@@ -62,13 +52,13 @@ To run Url Shorten Application, we need to build docker images.
     }'
 ```
 
-#### Get original url by shorten uri
+##### Get original url by shorten uri
 
 ```
     curl --location --request GET 'http://localhost:9000/url/1/original'
 ```
 
-### 2. Run unit test
+#### 2. Run unit test
 
 This project has implemented unit test.
 To run unit test, you can execute below command.
@@ -76,7 +66,7 @@ To run unit test, you can execute below command.
     gradle clean test 
 ```
 
-### 3. Redirect url test
+#### 3. Redirect url test
 
 Create shorten url and execute this url in browser
 ```
