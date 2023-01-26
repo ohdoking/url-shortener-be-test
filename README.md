@@ -72,3 +72,11 @@ Create shorten url and execute this url in browser
 ```
   http://localhost:9000/1
 ```
+
+### Document
+
+you can check api in swagger ui
+
+```
+    http://localhost:9000/swagger-ui.html
+```

@@ -54,6 +54,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 
+    // docs
+    implementation('org.springdoc:springdoc-openapi-webflux-ui:1.6.4')
 
     // etc
     compileOnly 'org.projectlombok:lombok'
