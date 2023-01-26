@@ -20,9 +20,12 @@ services:
     ports:
       - 9000:9000
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/vivy
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_R2DBC_URL: r2dbc:postgresql://host.docker.internal:5432/vivy
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: postgres
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://host.docker.internal:5432/vivy
+      SPRING_LIQUIBASE_USER: postgres
+      SPRING_LIQUIBASE_PASSWORD: postgres
 volumes:
   db:
     driver: local
