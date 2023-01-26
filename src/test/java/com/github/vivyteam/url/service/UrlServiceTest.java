@@ -12,11 +12,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.net.URI;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -46,7 +45,9 @@ class UrlServiceTest {
         Mono<String> result = urlService.generateShortenUrl(uri, originalUrl);
 
         // then
-        assertEquals("http://localhost:9000/shorten", result.block());
+        StepVerifier.create(result)
+                .expectNext("http://localhost:9000/shorten")
+                .verifyComplete();
 
         // verify
         Mockito.verify(urlRepository, times(1)).findUrlByOriginal(anyString());
@@ -67,7 +68,9 @@ class UrlServiceTest {
         Mono<String> result = urlService.generateShortenUrl(uri, originalUrl);
 
         // then
-        assertEquals("http://localhost:9000/shorten", result.block());
+        StepVerifier.create(result)
+                .expectNext("http://localhost:9000/shorten")
+                .verifyComplete();
 
         // verify
         Mockito.verify(urlRepository, times(1)).findUrlByOriginal(anyString());
@@ -92,7 +95,9 @@ class UrlServiceTest {
         Mono<String> result = urlService.getOriginalUrl(shortenUrl);
 
         // then
-        assertEquals("https://sample.com", result.block());
+        StepVerifier.create(result)
+                .expectNext("https://sample.com")
+                .verifyComplete();
 
         // verify
         Mockito.verify(urlRepository, times(1)).findById(anyLong());
@@ -108,12 +113,14 @@ class UrlServiceTest {
         BDDMockito.given(urlRepository.findById(anyLong())).willReturn(Mono.empty());
 
         // when
-        Exception exception = assertThrows(NoUrlException.class, () -> {
-            urlService.getOriginalUrl(shortenUrl).block();
-        });
+        Mono<String> result = urlService.getOriginalUrl(shortenUrl);
 
         // then
-        assertEquals("Original url doesn't exist, id : 1", exception.getMessage());
+        StepVerifier.create(result)
+                .expectErrorMatches(throwable -> throwable instanceof NoUrlException &&
+                        throwable.getMessage().equals("Original url doesn't exist, id : 1")
+                )
+                .verify();
 
         // verify
         Mockito.verify(urlRepository, times(1)).findById(anyLong());
