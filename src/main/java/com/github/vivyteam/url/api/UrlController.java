@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @RestController
@@ -26,6 +27,7 @@ public class UrlController {
         log.info("url : " + shortenedUrlRequest.getUrl());
         //@TODO add url validation
         return urlService.generateShortenUrl(serverHttpRequest.getURI(), shortenedUrlRequest.getUrl())
+                .publishOn(Schedulers.boundedElastic())
                 .map(shortenUrlString -> ShortenedUrlResponse.builder()
                         .shortenUrl(shortenUrlString)
                         .build()
@@ -36,6 +38,7 @@ public class UrlController {
     @ResponseStatus(HttpStatus.OK)
     public Mono<OriginalUrlResponse> getOriginalUrl(@PathVariable final String shortenUrlPath) {
         return urlService.getOriginalUrl(shortenUrlPath)
+                .publishOn(Schedulers.boundedElastic())
                 .map(originalUrl -> OriginalUrlResponse.builder()
                         .url(originalUrl)
                         .build()
@@ -45,6 +48,7 @@ public class UrlController {
     @GetMapping("/{shortenedUrl}")
     public Mono<ResponseEntity> redirectOriginalUrl(@PathVariable final String shortenedUrl) {
         return urlService.getOriginalUrl(shortenedUrl)
+                .publishOn(Schedulers.boundedElastic())
                 .map(originalUrl -> ResponseEntity
                         .status(HttpStatus.MOVED_PERMANENTLY)
                         .header(HttpHeaders.LOCATION, originalUrl)

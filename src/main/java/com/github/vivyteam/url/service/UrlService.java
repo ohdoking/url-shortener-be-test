@@ -7,10 +7,9 @@ import com.github.vivyteam.url.util.Base62Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +21,7 @@ public class UrlService {
     public Mono<String> generateShortenUrl(URI uri, String originalUrl) {
         return urlRepository.findUrlByOriginal(originalUrl)
                 .switchIfEmpty(Mono.defer(() -> urlRepository.save(Url.builder().original(originalUrl).build())))
+                .publishOn(Schedulers.boundedElastic())
                 .map(url -> {
                     String encodedId = base62Util.encode(url.getId());
                     return buildShortenUrl(uri, encodedId);
@@ -36,6 +36,7 @@ public class UrlService {
         long id = base62Util.decode(shortenUrl);
         return urlRepository.findById(id)
                 .switchIfEmpty(Mono.error(new NoUrlException("Original url doesn't exist, id : " + id)))
+                .publishOn(Schedulers.boundedElastic())
                 .map(url -> url.getOriginal());
     }
 
