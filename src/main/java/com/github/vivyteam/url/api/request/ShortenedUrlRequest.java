@@ -4,7 +4,6 @@ import com.github.vivyteam.url.validation.UrlConstraint;
 import lombok.*;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
