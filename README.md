@@ -55,7 +55,7 @@ To run Url Shorten Application, we need to build docker images.
 ##### Get original url by shorten uri
 
 ```
-    curl --location --request GET 'http://localhost:9000/url/1/original'
+    curl --location --request GET 'http://localhost:9000/url/short/1/original'
 ```
 
 #### 2. Run unit test

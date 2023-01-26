@@ -1,5 +1,6 @@
 package com.github.vivyteam.url.service;
 
+import com.github.vivyteam.url.exception.NoUrlException;
 import com.github.vivyteam.url.model.Url;
 import com.github.vivyteam.url.repository.UrlRepository;
 import com.github.vivyteam.url.util.Base62Util;
@@ -10,10 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
-import javax.persistence.NoResultException;
 import java.net.URI;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,15 +38,15 @@ class UrlServiceTest {
         URI uri = URI.create("http://localhost:9000/short");
         String originalUrl = "https://sample.com";
 
-        BDDMockito.given(urlRepository.findUrlByOriginal(anyString())).willReturn(Optional.empty());
-        BDDMockito.given(urlRepository.save(any(Url.class))).willReturn(Url.builder().id(1l).original(originalUrl).build());
+        BDDMockito.given(urlRepository.findUrlByOriginal(anyString())).willReturn(Mono.empty());
+        BDDMockito.given(urlRepository.save(any(Url.class))).willReturn(Mono.just(Url.builder().id(1l).original(originalUrl).build()));
         BDDMockito.given(base62Util.encode(anyLong())).willReturn("shorten");
 
         // when
-        String result = urlService.generateShortenUrl(uri, originalUrl);
+        Mono<String> result = urlService.generateShortenUrl(uri, originalUrl);
 
         // then
-        assertEquals("http://localhost:9000/shorten", result);
+        assertEquals("http://localhost:9000/shorten", result.block());
 
         // verify
         Mockito.verify(urlRepository, times(1)).findUrlByOriginal(anyString());
@@ -60,14 +60,14 @@ class UrlServiceTest {
         URI uri = URI.create("http://localhost:9000/short");
         String originalUrl = "https://sample.com";
 
-        BDDMockito.given(urlRepository.findUrlByOriginal(anyString())).willReturn(Optional.of(Url.builder().id(1l).original(originalUrl).build()));
+        BDDMockito.given(urlRepository.findUrlByOriginal(anyString())).willReturn(Mono.just(Url.builder().id(1l).original(originalUrl).build()));
         BDDMockito.given(base62Util.encode(anyLong())).willReturn("shorten");
 
         // when
-        String result = urlService.generateShortenUrl(uri, originalUrl);
+        Mono<String> result = urlService.generateShortenUrl(uri, originalUrl);
 
         // then
-        assertEquals("http://localhost:9000/shorten", result);
+        assertEquals("http://localhost:9000/shorten", result.block());
 
         // verify
         Mockito.verify(urlRepository, times(1)).findUrlByOriginal(anyString());
@@ -81,7 +81,7 @@ class UrlServiceTest {
         String shortenUrl = "shorten";
 
         BDDMockito.given(base62Util.decode(anyString())).willReturn(1L);
-        BDDMockito.given(urlRepository.findById(anyLong())).willReturn(Optional.of(
+        BDDMockito.given(urlRepository.findById(anyLong())).willReturn(Mono.just(
                 Url.builder()
                         .id(1L)
                         .original("https://sample.com")
@@ -89,10 +89,10 @@ class UrlServiceTest {
         ));
 
         // when
-        String result = urlService.getOriginalUrl(shortenUrl);
+        Mono<String> result = urlService.getOriginalUrl(shortenUrl);
 
         // then
-        assertEquals("https://sample.com", result);
+        assertEquals("https://sample.com", result.block());
 
         // verify
         Mockito.verify(urlRepository, times(1)).findById(anyLong());
@@ -105,11 +105,11 @@ class UrlServiceTest {
         String shortenUrl = "shorten";
 
         BDDMockito.given(base62Util.decode(anyString())).willReturn(1L);
-        BDDMockito.given(urlRepository.findById(anyLong())).willReturn(Optional.empty());
+        BDDMockito.given(urlRepository.findById(anyLong())).willReturn(Mono.empty());
 
         // when
-        Exception exception = assertThrows(NoResultException.class, () -> {
-            urlService.getOriginalUrl(shortenUrl);
+        Exception exception = assertThrows(NoUrlException.class, () -> {
+            urlService.getOriginalUrl(shortenUrl).block();
         });
 
         // then

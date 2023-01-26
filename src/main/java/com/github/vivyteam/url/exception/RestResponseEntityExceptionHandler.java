@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.persistence.NoResultException;
-
 import static org.springframework.http.ResponseEntity.notFound;
 
 @Slf4j
@@ -15,8 +13,8 @@ import static org.springframework.http.ResponseEntity.notFound;
 public class RestResponseEntityExceptionHandler {
 
     @ResponseBody
-    @ExceptionHandler(NoResultException.class)
-    public ResponseEntity<Object> handleNoResultException(NoResultException ex) {
+    @ExceptionHandler(NoUrlException.class)
+    public ResponseEntity<Object> handleNoResultException(NoUrlException ex) {
         log.debug("Not found : {}", ex.getMessage());
         return notFound().build();
     }

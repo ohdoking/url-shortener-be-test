@@ -1,24 +1,20 @@
 package com.github.vivyteam.url.model;
 
 import lombok.*;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-import javax.persistence.*;
 
-@Entity
 @Cacheable
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Builder(toBuilder = true)
-@EqualsAndHashCode
+@Table("url")
 public class Url {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private long id;
 
-    @Column(nullable = false)
     private String original;
 }

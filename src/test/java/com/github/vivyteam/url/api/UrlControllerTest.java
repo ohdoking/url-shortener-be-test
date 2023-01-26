@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
@@ -34,7 +35,7 @@ public class UrlControllerTest {
     public void givenOriginalUrl_WhenCallPostShortUrl_ThenReturnShortenUrl() {
         // given
         ShortenedUrlRequest shortenedUrlRequest = getSampleShortenUrlRequest();
-        BDDMockito.given(urlService.generateShortenUrl(any(URI.class), anyString())).willReturn("http://localhost:9000/shorten");
+        BDDMockito.given(urlService.generateShortenUrl(any(URI.class), anyString())).willReturn(Mono.just("http://localhost:9000/shorten"));
 
         // when, then
         webClient.post()
@@ -44,7 +45,7 @@ public class UrlControllerTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectBody()
-                .jsonPath("$.url").isEqualTo("http://localhost:9000/shorten");
+                .jsonPath("$.shorten_url").isEqualTo("http://localhost:9000/shorten");
 
         Mockito.verify(urlService, times(1)).generateShortenUrl(any(URI.class), anyString());
     }
@@ -52,12 +53,12 @@ public class UrlControllerTest {
     @Test
     public void givenShortenUrl_WhenCallGetOriginalUrl_ThenReturnOriginalUrl() {
         // given
-        String shortenUrl = "shorten";
-        BDDMockito.given(urlService.getOriginalUrl(anyString())).willReturn("http://sample.com");
+        String shortenUrlPath = "shorten";
+        BDDMockito.given(urlService.getOriginalUrl(anyString())).willReturn(Mono.just("http://sample.com"));
 
         // when, then
         webClient.get()
-                .uri("/url/{shortenUrl}/original", shortenUrl)
+                .uri("/url/short/{shortenUrlPath}/original", shortenUrlPath)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -70,7 +71,7 @@ public class UrlControllerTest {
     public void givenShortenUrl_WhenCallGetRedirectOriginalUrl_ThenReturnMovedPermanentlyHttpStatus() {
         // given
         String shortenUrl = "shorten";
-        BDDMockito.given(urlService.getOriginalUrl(anyString())).willReturn("http://sample.com");
+        BDDMockito.given(urlService.getOriginalUrl(anyString())).willReturn(Mono.just("http://sample.com"));
 
         // when, then
         webClient.get()

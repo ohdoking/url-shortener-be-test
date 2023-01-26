@@ -1,12 +1,11 @@
 package com.github.vivyteam.url.repository;
 
 import com.github.vivyteam.url.model.Url;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface UrlRepository extends JpaRepository<Url, Long> {
-    Optional<Url> findUrlByOriginal(String original);
+public interface UrlRepository extends ReactiveCrudRepository<Url, Long> {
+    Mono<Url> findUrlByOriginal(String original);
 }

@@ -2,15 +2,19 @@ server:
   port: 9000
 
 spring:
-  datasource:
-    driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/vivy
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/vivy
     username: postgres
     password: postgres
   jpa:
     hibernate:
       ddl-auto: create
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    url: jdbc:postgresql://localhost:5432/vivy
+    user: postgres
+    password: postgres
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 logging:
   level:

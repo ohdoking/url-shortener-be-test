@@ -25,24 +25,31 @@ public class UrlController {
     public Mono<ShortenedUrlResponse> shortUrl(ServerHttpRequest serverHttpRequest, @RequestBody ShortenedUrlRequest shortenedUrlRequest) {
         log.info("url : " + shortenedUrlRequest.getUrl());
         //@TODO add url validation
-        String shortenUrl = urlService.generateShortenUrl(serverHttpRequest.getURI(), shortenedUrlRequest.getUrl());
-        return Mono.just(new ShortenedUrlResponse(shortenUrl));
+        return urlService.generateShortenUrl(serverHttpRequest.getURI(), shortenedUrlRequest.getUrl())
+                .map(shortenUrlString -> ShortenedUrlResponse.builder()
+                        .shortenUrl(shortenUrlString)
+                        .build()
+                );
     }
 
-    @GetMapping("/url/{shortenedUrl}/original")
+    @GetMapping("/url/short/{shortenUrlPath}/original")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<OriginalUrlResponse> getOriginalUrl(@PathVariable final String shortenedUrl) {
-        String originalUrl = urlService.getOriginalUrl(shortenedUrl);
-        return Mono.just(new OriginalUrlResponse(originalUrl));
+    public Mono<OriginalUrlResponse> getOriginalUrl(@PathVariable final String shortenUrlPath) {
+        return urlService.getOriginalUrl(shortenUrlPath)
+                .map(originalUrl -> OriginalUrlResponse.builder()
+                        .url(originalUrl)
+                        .build()
+                );
     }
 
     @GetMapping("/{shortenedUrl}")
-    public ResponseEntity redirectOriginalUrl(@PathVariable final String shortenedUrl) {
-        String originalUrl = urlService.getOriginalUrl(shortenedUrl);
-        return ResponseEntity
-                .status(HttpStatus.MOVED_PERMANENTLY)
-                .header(HttpHeaders.LOCATION, originalUrl)
-                .build();
+    public Mono<ResponseEntity> redirectOriginalUrl(@PathVariable final String shortenedUrl) {
+        return urlService.getOriginalUrl(shortenedUrl)
+                .map(originalUrl -> ResponseEntity
+                        .status(HttpStatus.MOVED_PERMANENTLY)
+                        .header(HttpHeaders.LOCATION, originalUrl)
+                        .build()
+                );
     }
 
 
