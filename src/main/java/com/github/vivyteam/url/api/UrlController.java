@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -23,9 +25,8 @@ public class UrlController {
 
     @PostMapping("/url/short")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ShortenedUrlResponse> shortUrl(ServerHttpRequest serverHttpRequest, @RequestBody ShortenedUrlRequest shortenedUrlRequest) {
-        log.info("url : " + shortenedUrlRequest.getUrl());
-        //@TODO add url validation
+    public Mono<ShortenedUrlResponse> shortUrl(ServerHttpRequest serverHttpRequest, @Valid @RequestBody ShortenedUrlRequest shortenedUrlRequest) {
+        log.debug("Request shortUrl, original_url : " + shortenedUrlRequest.getUrl());
         return urlService.generateShortenUrl(serverHttpRequest.getURI(), shortenedUrlRequest.getUrl())
                 .publishOn(Schedulers.boundedElastic())
                 .map(shortenUrlString -> ShortenedUrlResponse.builder()

@@ -19,6 +19,7 @@ import java.net.URI;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(SpringExtension.class)
@@ -34,7 +35,7 @@ public class UrlControllerTest {
     @Test
     public void givenOriginalUrl_WhenCallPostShortUrl_ThenReturnShortenUrl() {
         // given
-        ShortenedUrlRequest shortenedUrlRequest = getSampleShortenUrlRequest();
+        ShortenedUrlRequest shortenedUrlRequest = ShortenedUrlRequest.builder().url("https://github.com/VivyTeam/url-shortener-be-test").build();
         BDDMockito.given(urlService.generateShortenUrl(any(URI.class), anyString())).willReturn(Mono.just("http://localhost:9000/shorten"));
 
         // when, then
@@ -48,6 +49,25 @@ public class UrlControllerTest {
                 .jsonPath("$.shorten_url").isEqualTo("http://localhost:9000/shorten");
 
         Mockito.verify(urlService, times(1)).generateShortenUrl(any(URI.class), anyString());
+    }
+
+    @Test
+    public void givenInvalidOriginalUrl_WhenCallPostShortUrl_ThenReturnBadRequest() {
+        // given
+        ShortenedUrlRequest shortenedUrlRequest = ShortenedUrlRequest.builder().url("invalid_url").build();
+        BDDMockito.given(urlService.generateShortenUrl(any(URI.class), anyString())).willReturn(Mono.just("http://localhost:9000/shorten"));
+
+        // when, then
+        webClient.post()
+                .uri("/url/short")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromObject(shortenedUrlRequest))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$[0]").isEqualTo("Invalid url");
+
+        Mockito.verify(urlService, never()).generateShortenUrl(any(URI.class), anyString());
     }
 
     @Test
@@ -82,7 +102,4 @@ public class UrlControllerTest {
         Mockito.verify(urlService, times(1)).getOriginalUrl(anyString());
     }
 
-    private ShortenedUrlRequest getSampleShortenUrlRequest() {
-        return new ShortenedUrlRequest("https://github.com/VivyTeam/url-shortener-be-test");
-    }
 }

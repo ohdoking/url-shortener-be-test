@@ -1,14 +1,14 @@
 package com.github.vivyteam.url.api.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.github.vivyteam.url.validation.UrlConstraint;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShortenedUrlRequest {
+    @UrlConstraint
     private String url;
 }
